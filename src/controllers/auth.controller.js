@@ -14,7 +14,6 @@ const controller = {
     res.status(201).json({
       id: newUser.id,
       fullName: newUser.fullName,
-      userName: newUser.userName,
       email: newUser.email,
       token: jwt,
     });

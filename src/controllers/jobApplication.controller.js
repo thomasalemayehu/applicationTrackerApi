@@ -30,22 +30,22 @@ const controller = {
     res.status(200).json(newApplication);
   },
   getAllApplications: async (req, res) => {
-    const { verifiedUserId } = req;
+    // const { verifiedUserId } = req;
 
-    if (!verifiedUserId) throw new UnAuthorizedAccessError("Please Login");
-    let { pageNumber, pageSize } = req.query;
+    // if (!verifiedUserId) throw new UnAuthorizedAccessError("Please Login");
+    let { page, size } = req.query;
 
-    if (!pageNumber) pageNumber = 1;
+    if (!page) page = 1;
 
-    if (!pageSize) pageSize = 20;
+    if (!size) size = 20;
 
-    const skip = (pageNumber - 1) * pageSize;
+    const skip = (page - 1) * size;
 
     const allApplications = await JobApplication.find({
-      userId: verifiedUserId,
+      // userId: verifiedUserId,
     })
       .skip(skip)
-      .limit(pageSize);
+      .limit(size);
 
     res.status(200).json(allApplications);
   },

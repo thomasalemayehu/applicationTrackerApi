@@ -11,6 +11,12 @@ const jobApplicationSchema = mongoose.Schema(
       type: String,
       required: [true, "Position is required to add"],
     },
+    payRange: {
+      type: String,
+    },
+    location: {
+      type: String,
+    },
 
     resumeVersionPath: {
       type: String,
@@ -23,8 +29,36 @@ const jobApplicationSchema = mongoose.Schema(
       type: String,
     },
     userId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref:"user"
+      // type: mongoose.Schema.Types.ObjectId,
+      // ref: "user",
+    },
+    status: {
+      type: String,
+      default: "Applied",
+      enum: [
+        "Tracking",
+        "Applied",
+        "Phone Screen",
+        "Interview",
+        "Offer",
+        "Accepted",
+        "Rejected",
+      ],
+      required: true,
+    },
+    followUp: {
+      type: String,
+      default: "None",
+      enum: [
+        "None",
+        "Research",
+        "Website Follow Up",
+        "Linkedin Follow Up",
+        "Email",
+        "Multiple Emails",
+        "Phone",
+      ],
+      required: true,
     },
   },
   {
@@ -32,9 +66,11 @@ const jobApplicationSchema = mongoose.Schema(
   }
 );
 
-const JobApplication = mongoose.model(
-  "jobApplication",
-  jobApplicationSchema
-);
+jobApplicationSchema.method("toJSON", function () {
+  const { __v, _id, ...object } = this.toObject();
+  object.id = _id;
+  return object;
+});
+const JobApplication = mongoose.model("jobApplication", jobApplicationSchema);
 
 module.exports = JobApplication;

@@ -23,6 +23,7 @@ require("express-async-errors");
 const errorMiddleware = require("./middleware/error.middleware");
 const pageNotFoundMiddleware = require("./middleware/pageNotFound.middleware");
 const authenticationMiddleware = require("./middleware/authentication.middleware");
+const delayMiddleware = require("./middleware/delay.middleware");
 //
 const authRoutes = require("./routes/auth.routes");
 const jobApplicationRoutes = require("./routes/jobApplication.routes");
@@ -38,10 +39,15 @@ app.use(express.urlencoded({ limit: "50mb", extended: true }));
 app.use(express.static("public"));
 
 app.get("/", (req, res) => {
-  res.status(200).sendFile(path.join(__dirname, "public", "index.htm"));
+  res.status(200).send("Done");
 });
-app.use("/auth", authRoutes);
-app.use("/applications/", authenticationMiddleware, jobApplicationRoutes);
+app.use("/auth", delayMiddleware, authRoutes);
+app.use(
+  "/applications/",
+  delayMiddleware,
+  authenticationMiddleware,
+  jobApplicationRoutes
+);
 
 app.use(errorMiddleware);
 
