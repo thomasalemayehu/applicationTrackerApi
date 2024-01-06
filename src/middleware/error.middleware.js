@@ -8,6 +8,6 @@ module.exports = (err, req, res, next) => {
 
   console.log(err);
 
-  // if (err.message.includes("E11000")) errorMessage = ""
+  if (err.message.includes("E11000")) errorMessage = "Email already exists please login!"
   res.status(500).json({ message: errorMessage });
 };
