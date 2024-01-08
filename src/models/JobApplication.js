@@ -18,7 +18,11 @@ const jobApplicationSchema = mongoose.Schema(
       type: String,
     },
 
-    resumeVersionPath: {
+    resumePath: {
+      type: String,
+      //   required: [true, "Resume is required to add"],
+    },
+    coverLetterPath: {
       type: String,
       //   required: [true, "Resume is required to add"],
     },
@@ -28,9 +32,11 @@ const jobApplicationSchema = mongoose.Schema(
     remark: {
       type: String,
     },
+
+    // TODO:Enable
     userId: {
-      // type: mongoose.Schema.Types.ObjectId,
-      // ref: "user",
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "user",
     },
     status: {
       type: String,

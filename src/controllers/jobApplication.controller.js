@@ -12,27 +12,40 @@ const controller = {
 
     if (!verifiedUserId) throw new UnAuthorizedAccessError("Please Login");
 
-    const { company, position, jobDescription, remark } = req.body;
+    console.log(req.body);
+    const { company, payRange, position, location, jobDescription, remark } =
+      req.body;
 
     if (!company) throw new MissingAttributeError("Company");
     if (!position) throw new MissingAttributeError("Position");
-    if (!jobDescription) throw new MissingAttributeError("Job Description");
-    if (!remark) throw new MissingAttributeError("Remark");
 
-    const newApplication = await JobApplication.create({
+    const { resume, coverLetter } = req.files;
+
+    // Simplified object construction
+    const applicationInfo = {
       company,
       position,
-      jobDescription,
-      remark,
       userId: verifiedUserId,
-    });
+      ...(payRange && { payRange }),
+      ...(location && { location }),
+      ...(jobDescription && { jobDescription }),
+      ...(remark && { remark }),
+      ...(resume && { resumePath: resume[0].path.replace("public", "") }),
+      ...(coverLetter && {
+        coverLetterPath: coverLetter[0].path.replace("public", ""),
+      }),
+    };
+
+    const newApplication = await JobApplication.create(applicationInfo);
 
     res.status(200).json(newApplication);
   },
   getAllApplications: async (req, res) => {
-    // const { verifiedUserId } = req;
+    const { verifiedUserId } = req;
 
-    // if (!verifiedUserId) throw new UnAuthorizedAccessError("Please Login");
+    console.log(verifiedUserId);
+
+    if (!verifiedUserId) throw new UnAuthorizedAccessError("Please Login");
     let { page, size } = req.query;
 
     if (!page) page = 1;
@@ -42,12 +55,33 @@ const controller = {
     const skip = (page - 1) * size;
 
     const allApplications = await JobApplication.find({
-      // userId: verifiedUserId,
+      userId: verifiedUserId,
     })
       .skip(skip)
       .limit(size);
 
     res.status(200).json(allApplications);
+  },
+
+  searchApplicationByKeyword: async (req, res) => {
+    const { verifiedUserId } = req;
+
+    if (!verifiedUserId) throw new UnAuthorizedAccessError("Please Login");
+    const { keyword } = req.query;
+
+    let result;
+    if (!keyword) {
+      result = await JobApplication.find({}).limit(20);
+    } else {
+      result = await JobApplication.find({
+        $and: [
+          { userId: verifiedUserId },
+          { $or: [{ company: keyword }, { position: keyword }] },
+        ],
+      }).limit(20);
+    }
+
+    res.status(200).json(result);
   },
   getApplicationById: async (req, res) => {
     const { verifiedUserId } = req;
@@ -70,7 +104,16 @@ const controller = {
 
     if (!verifiedUserId) throw new UnAuthorizedAccessError("Please Login");
 
-    const { company, position, jobDescription, remark } = req.body;
+    const {
+      company,
+      position,
+      payRange,
+      location,
+      jobDescription,
+      remark,
+      status,
+      followUp,
+    } = req.body;
 
     const { id } = req.params;
 
@@ -79,11 +122,18 @@ const controller = {
     const updateInfo = {};
     if (company) updateInfo.company = company;
     if (position) updateInfo.position = position;
+    if (payRange) updateInfo.payRange = payRange;
+    if (location) updateInfo.location = location;
     if (jobDescription) updateInfo.jobDescription = jobDescription;
     if (remark) updateInfo.remark = remark;
+    if (status) updateInfo.status = status;
+    if (followUp) updateInfo.followUp = followUp;
 
     const result = await JobApplication.updateOne(
-      { userId: verifiedUserId, _id: id },
+      {
+        userId: verifiedUserId,
+        _id: id,
+      },
       { $set: updateInfo }
     );
 

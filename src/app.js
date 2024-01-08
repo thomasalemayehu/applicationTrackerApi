@@ -41,10 +41,10 @@ app.use(express.static("public"));
 app.get("/", (req, res) => {
   res.status(200).send("Done");
 });
-app.use("/auth", delayMiddleware, authRoutes);
+app.use("/auth", authRoutes);
 app.use(
-  "/applications/",
-  delayMiddleware,
+  "/applications",
+  // delayMiddleware,
   authenticationMiddleware,
   jobApplicationRoutes
 );
